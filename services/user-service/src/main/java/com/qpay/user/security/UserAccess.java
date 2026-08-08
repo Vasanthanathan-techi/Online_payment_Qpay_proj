@@ -1,0 +1,3 @@
+package com.qpay.user.security;
+import org.springframework.security.core.Authentication;import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;import org.springframework.stereotype.Component;import java.util.UUID;
+@Component("userAccess") public class UserAccess {public boolean canAccess(Authentication auth,UUID id){if(auth.getAuthorities().stream().anyMatch(a->a.getAuthority().equals("ROLE_OPS")||a.getAuthority().equals("ROLE_SUPER_ADMIN")))return true;return auth instanceof JwtAuthenticationToken jwt&&id.toString().equals(jwt.getToken().getClaimAsString("owner_id"));}}

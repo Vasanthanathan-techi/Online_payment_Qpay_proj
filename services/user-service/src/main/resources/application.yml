@@ -1,0 +1,11 @@
+server.port: ${SERVER_PORT:8082}
+spring.application.name: user-service
+spring.datasource.url: ${DB_URL:jdbc:mysql://localhost:13306/qpay_user?createDatabaseIfNotExist=true}
+spring.datasource.username: ${DB_USERNAME:qpay}
+spring.datasource.password: ${DB_PASSWORD:qpay_local}
+spring.jpa.open-in-view: false
+spring.jpa.hibernate.ddl-auto: validate
+spring.security.oauth2.resourceserver.jwt.issuer-uri: ${JWT_ISSUER_URI:http://localhost:8081}
+qpay.device-token-secret: ${DEVICE_TOKEN_SECRET:local-device-secret-change-me}
+management.endpoints.web.exposure.include: health,info,prometheus
+management.endpoint.health.probes.enabled: true

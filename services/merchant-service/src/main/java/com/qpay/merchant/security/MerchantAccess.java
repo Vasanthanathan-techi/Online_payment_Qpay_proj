@@ -1,0 +1,3 @@
+package com.qpay.merchant.security;
+import org.springframework.security.core.Authentication;import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;import org.springframework.stereotype.Component;import java.util.UUID;
+@Component("merchantAccess") public class MerchantAccess {public boolean canAccess(Authentication authentication,UUID merchantId){if(authentication.getAuthorities().stream().anyMatch(a->a.getAuthority().equals("ROLE_OPS")||a.getAuthority().equals("ROLE_SUPER_ADMIN")))return true;if(authentication instanceof JwtAuthenticationToken jwt){String owner=jwt.getToken().getClaimAsString("owner_id");return merchantId.toString().equals(owner);}return false;}}

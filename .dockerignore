@@ -1,0 +1,9 @@
+.git
+.github
+.idea
+.vscode
+.m2
+.runlogs
+**/target
+deploy/ec2/.env
+*.log

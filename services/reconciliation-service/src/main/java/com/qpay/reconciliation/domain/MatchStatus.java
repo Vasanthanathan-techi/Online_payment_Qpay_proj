@@ -1,0 +1,2 @@
+package com.qpay.reconciliation.domain;
+public enum MatchStatus {MATCHED,AMOUNT_MISMATCH,STATUS_MISMATCH,MISSING_INTERNAL,MISSING_EXTERNAL,CURRENCY_MISMATCH}

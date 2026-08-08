@@ -1,0 +1,15 @@
+CREATE DATABASE IF NOT EXISTS qpay_auth;
+CREATE DATABASE IF NOT EXISTS qpay_user;
+CREATE DATABASE IF NOT EXISTS qpay_merchant;
+CREATE DATABASE IF NOT EXISTS qpay_wallet;
+CREATE DATABASE IF NOT EXISTS qpay_payment;
+CREATE DATABASE IF NOT EXISTS qpay_payout;
+CREATE DATABASE IF NOT EXISTS qpay_reconciliation;
+GRANT ALL PRIVILEGES ON qpay_auth.* TO 'qpay'@'%';
+GRANT ALL PRIVILEGES ON qpay_user.* TO 'qpay'@'%';
+GRANT ALL PRIVILEGES ON qpay_merchant.* TO 'qpay'@'%';
+GRANT ALL PRIVILEGES ON qpay_wallet.* TO 'qpay'@'%';
+GRANT ALL PRIVILEGES ON qpay_payment.* TO 'qpay'@'%';
+GRANT ALL PRIVILEGES ON qpay_payout.* TO 'qpay'@'%';
+GRANT ALL PRIVILEGES ON qpay_reconciliation.* TO 'qpay'@'%';
+FLUSH PRIVILEGES;
