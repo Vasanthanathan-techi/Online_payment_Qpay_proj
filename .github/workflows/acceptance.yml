@@ -21,7 +21,7 @@ jobs:
       QPAY_HTTP_PORT: 8080
       QPAY_IMAGE_TAG: ci
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Validate deployment configuration
         run: docker compose --project-name qpay -f deploy/ec2/compose.yml config --quiet
       - name: Build and start QPay
@@ -61,7 +61,7 @@ jobs:
           } catch {
             $message = $_.Exception.Message.Replace("`r", " ").Replace("`n", " ")
             Write-Output "::error title=QPay acceptance failure::$message"
-            $notificationLogs = (docker logs --tail 80 qpay-notification 2>&1) -join " | "
+            $notificationLogs = (docker compose --project-name qpay -f deploy/ec2/compose.yml logs --tail 80 notification-service 2>&1) -join " | "
             $notificationLogs = $notificationLogs.Replace("%", "%25").Replace("`r", "%0D").Replace("`n", "%0A")
             if ($notificationLogs.Length -gt 12000) { $notificationLogs = $notificationLogs.Substring($notificationLogs.Length - 12000) }
             Write-Output "::error title=Notification service diagnostics::$notificationLogs"
