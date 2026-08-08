@@ -23,22 +23,34 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Validate deployment configuration
-        run: docker compose -f deploy/ec2/compose.yml config --quiet
+        run: docker compose --project-name qpay -f deploy/ec2/compose.yml config --quiet
       - name: Build and start QPay
-        run: docker compose -f deploy/ec2/compose.yml up -d --build
-      - name: Wait for authentication migrations
-        shell: pwsh
+        run: docker compose --project-name qpay -f deploy/ec2/compose.yml up -d --build
+      - name: Wait for every application
+        shell: bash
         run: |
-          for ($attempt = 1; $attempt -le 60; $attempt++) {
-            try {
-              $health = Invoke-RestMethod http://localhost:8080/actuator/health -TimeoutSec 3
-              if ($health.status -eq 'UP') { exit 0 }
-            } catch {}
-            Start-Sleep -Seconds 5
-          }
-          docker compose -f deploy/ec2/compose.yml ps
-          docker compose -f deploy/ec2/compose.yml logs --tail 100
-          throw 'QPay did not become healthy.'
+          services=(
+            authentication-service:8081 user-service:8082 merchant-service:8083
+            wallet-service:8084 payment-service:8085 payout-service:8086
+            notification-service:8087 reconciliation-service:8088 api-gateway:8080
+          )
+          for service in "${services[@]}"; do
+            ready=false
+            for attempt in $(seq 1 60); do
+              if docker run --rm --network qpay_qpay curlimages/curl:8.16.0 \
+                  --fail --silent "http://${service}/actuator/health" | grep -q '"status":"UP"'; then
+                ready=true
+                break
+              fi
+              sleep 5
+            done
+            if [ "$ready" != true ]; then
+              docker compose --project-name qpay -f deploy/ec2/compose.yml ps
+              docker compose --project-name qpay -f deploy/ec2/compose.yml logs --tail 100
+              echo "${service} did not become healthy" >&2
+              exit 1
+            fi
+          done
       - name: Seed disposable acceptance principal
         run: docker exec -i -e MYSQL_PWD="$MYSQL_PASSWORD" qpay-mysql mysql -uqpay < scripts/acceptance/seed-local-principal.sql
       - name: Run end-to-end acceptance flow
@@ -46,7 +58,7 @@ jobs:
         run: ./scripts/acceptance/payment-flow.ps1 -MySqlContainer qpay-mysql -MongoContainer qpay-mongodb
       - name: Capture failure diagnostics
         if: failure()
-        run: docker compose -f deploy/ec2/compose.yml logs --tail 200
+        run: docker compose --project-name qpay -f deploy/ec2/compose.yml logs --tail 200
       - name: Stop stack
         if: always()
-        run: docker compose -f deploy/ec2/compose.yml down -v
+        run: docker compose --project-name qpay -f deploy/ec2/compose.yml down -v
