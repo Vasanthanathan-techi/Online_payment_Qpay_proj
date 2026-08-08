@@ -61,6 +61,10 @@ jobs:
           } catch {
             $message = $_.Exception.Message.Replace("`r", " ").Replace("`n", " ")
             Write-Output "::error title=QPay acceptance failure::$message"
+            $notificationLogs = (docker logs --tail 80 qpay-notification 2>&1) -join " | "
+            $notificationLogs = $notificationLogs.Replace("%", "%25").Replace("`r", "%0D").Replace("`n", "%0A")
+            if ($notificationLogs.Length -gt 12000) { $notificationLogs = $notificationLogs.Substring($notificationLogs.Length - 12000) }
+            Write-Output "::error title=Notification service diagnostics::$notificationLogs"
             throw
           }
       - name: Capture failure diagnostics
