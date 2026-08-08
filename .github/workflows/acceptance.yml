@@ -57,7 +57,7 @@ jobs:
         shell: pwsh
         run: |
           try {
-            ./scripts/acceptance/payment-flow.ps1 -MySqlContainer qpay-mysql -MongoContainer qpay-mongodb
+            ./scripts/acceptance/payment-flow.ps1 -MySqlContainer qpay-mysql -MongoContainer qpay-mongodb -AsyncTimeoutSeconds 120
           } catch {
             $message = $_.Exception.Message.Replace("`r", " ").Replace("`n", " ")
             Write-Output "::error title=QPay acceptance failure::$message"
