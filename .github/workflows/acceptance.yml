@@ -55,7 +55,14 @@ jobs:
         run: docker exec -i -e MYSQL_PWD="$MYSQL_PASSWORD" qpay-mysql mysql -uqpay < scripts/acceptance/seed-local-principal.sql
       - name: Run end-to-end acceptance flow
         shell: pwsh
-        run: ./scripts/acceptance/payment-flow.ps1 -MySqlContainer qpay-mysql -MongoContainer qpay-mongodb
+        run: |
+          try {
+            ./scripts/acceptance/payment-flow.ps1 -MySqlContainer qpay-mysql -MongoContainer qpay-mongodb
+          } catch {
+            $message = $_.Exception.Message.Replace("`r", " ").Replace("`n", " ")
+            Write-Output "::error title=QPay acceptance failure::$message"
+            throw
+          }
       - name: Capture failure diagnostics
         if: failure()
         run: docker compose --project-name qpay -f deploy/ec2/compose.yml logs --tail 200
